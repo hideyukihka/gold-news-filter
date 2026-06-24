@@ -1,0 +1,37 @@
+name: Update GOLD Status
+
+on:
+  schedule:
+    # 1時間ごとに自動チェックしてテキストを更新する設定
+    - cron: '0 * * * *'
+  workflow_dispatch: # 手動で即座に実行したい時用
+
+jobs:
+  update-status:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        pip install requests
+
+    - name: Run updater
+      env:
+        STATUS_FILE_PATH: "status_gold.txt"
+        STATUS_META_PATH: "status_gold.json"
+    run: python ai_status_server/update_status.py
+
+    - name: Commit and Push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add status_gold.txt status_gold.json
+        git commit -m "Automated status update" || exit 0
+        git push
