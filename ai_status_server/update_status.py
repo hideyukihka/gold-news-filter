@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 # 【設定】Finnhub APIキー と フィルター条件
 # =============================================================================
 # 🚨 取得した無料のAPIキーをここに貼り付けてください
-FINNHUB_API_KEY = "YOUR_FREE_FINNHUB_API_KEY"
+FINNHUB_API_KEY = "d8v6ja1r01qrt65vk4g0d8v6ja1r01qrt65vk4gg"
 
 # 指標発表の「何時間前」から「何時間後」までEAを停止するか
 PRE_EVENT_HOURS = 3   # 3時間前から停止
