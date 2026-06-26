@@ -38,17 +38,19 @@ def fetch_economic_calendar():
         return []
 
 def main():
-    print("--- Start High-Precision Calendar Status Updater (GOLD, MAJOR, BTC) ---")
+    print("--- Start High-Precision Calendar Status Updater (GOLD, MAJOR, BTC, JP225) ---")
     
     # ファイルパスの設定
     gold_status_file, gold_meta_file = "status_gold.txt", "status_gold.json"
     major_status_file, major_meta_file = "status_major.txt", "status_major.json"
     btc_status_file, btc_meta_file = "status_btc.txt", "status_btc.json"
+    jp225_status_file, jp225_meta_file = "status_jp225.txt", "status_jp225.json"
     
     # デフォルトはすべて稼働状態（START）
     gold_status, gold_reason = "START", "GOLD market is stable."
     major_status, major_reason = "START", "Major currency markets are stable."
     btc_status, btc_reason = "START", "BTC market is stable."
+    jp225_status, jp225_reason = "START", "JP225 market is stable."
     
     current_time_utc = datetime.utcnow()
     print(f"Current UTC Time: {current_time_utc.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -95,11 +97,16 @@ def main():
                 major_reason = f"Forex High Impact Event Alert ({country}): {event_name} at {event_time_str} UTC"
                 
             # --- 判定C: ビットコイン（BTC）の停止条件 ---
-            # 暗号資産市場は「米国の金融政策（利下げ・利上げ・CPI・FOMC）」に極めて敏感です。
-            # そのため、米国(US)の最高重要度(high)指標、およびデジタル通貨に関連する重要なイベントをトリガーにします。
+            # 米国(US)の最高重要度(high)指標
             if country == "US" and impact == "high":
                 btc_status = "STOP"
                 btc_reason = f"US Macro Event Alert for BTC: {event_name} at {event_time_str} UTC"
+
+            # --- 判定D: 日経平均（JP225）の停止条件 ---
+            # 日本(JP)および米国(US)の最高重要度(high)指標
+            if country in ["JP", "US"] and impact == "high":
+                jp225_status = "STOP"
+                jp225_reason = f"JP/US High Impact Event Alert: {event_name} at {event_time_str} UTC"
 
     # -------------------------------------------------------------------------
     # 各ファイルへの書き込み
@@ -116,11 +123,17 @@ def main():
     with open(major_meta_file, "w", encoding="utf-8") as f:
         json.dump({"status": major_status, "reason": major_reason, "generated_at_utc": current_time_utc.isoformat() + "Z"}, f, indent=2)
 
-    # --- ビットコイン出力 (★追加) ---
+    # --- ビットコイン出力 ---
     print(f"Final Decision for BTC: {btc_status} ({btc_reason})")
     with open(btc_status_file, "w", encoding="utf-8") as f: f.write(btc_status)
     with open(btc_meta_file, "w", encoding="utf-8") as f:
         json.dump({"status": btc_status, "reason": btc_reason, "generated_at_utc": current_time_utc.isoformat() + "Z"}, f, indent=2)
+
+    # --- 日経平均出力 ---
+    print(f"Final Decision for JP225: {jp225_status} ({jp225_reason})")
+    with open(jp225_status_file, "w", encoding="utf-8") as f: f.write(jp225_status)
+    with open(jp225_meta_file, "w", encoding="utf-8") as f:
+        json.dump({"status": jp225_status, "reason": jp225_reason, "generated_at_utc": current_time_utc.isoformat() + "Z"}, f, indent=2)
 
 if __name__ == "__main__":
     main()
